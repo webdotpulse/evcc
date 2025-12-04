@@ -74,6 +74,26 @@ GOOS=linux GOARCH=arm GOARM=6 make
 make docker DOCKER_IMAGE=my/docker DOCKER_TAG=0815
 ```
 
+### Building Debian Package
+
+To build a `.deb` package, you need `goreleaser` installed.
+
+1. Install `goreleaser`:
+   ```sh
+   go install github.com/goreleaser/goreleaser/v2@latest
+   ```
+2. Build the UI:
+   ```sh
+   make install-ui
+   make ui
+   ```
+3. Create the package:
+   ```sh
+   make snapshot
+   ```
+
+The resulting package will be in `release/`.
+
 ## Debugging in VS Code
 
 ### evcc Core
