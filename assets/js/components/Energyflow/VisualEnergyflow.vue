@@ -81,10 +81,10 @@
 					  :class="{ 'grid-in': gridImport > 0, 'grid-out': gridExport > 0 }"
 					  :marker-end="gridImport > 0 ? 'url(#arrow-grid-in)' : (gridExport > 0 ? 'url(#arrow-grid-out)' : '')" />
 				<!-- Animated dots for flow -->
-				<circle v-if="gridImport > 0" r="4" class="dot grid-dot-in">
+				<circle v-if="gridImport > 0" r="6" class="dot grid-dot-in">
 					<animateMotion :path="paths.gridToHome" dur="2s" repeatCount="indefinite" />
 				</circle>
-				<circle v-if="gridExport > 0" r="4" class="dot grid-dot-out">
+				<circle v-if="gridExport > 0" r="6" class="dot grid-dot-out">
 					<animateMotion :path="paths.homeToGrid" dur="2s" repeatCount="indefinite" />
 				</circle>
 			</g>
@@ -95,7 +95,7 @@
 					  class="flow-path"
 					  :class="{ 'pv-in': pvProduction > 0 }"
 					  :marker-end="pvProduction > 0 ? 'url(#arrow-pv)' : ''" />
-				<circle v-if="pvProduction > 0" r="4" class="dot pv-dot">
+				<circle v-if="pvProduction > 0" r="6" class="dot pv-dot">
 					<animateMotion :path="paths.pvToHome" dur="2s" repeatCount="indefinite" />
 				</circle>
 			</g>
@@ -106,10 +106,10 @@
 					  class="flow-path"
 					  :class="{ 'battery-charge': batteryCharge > 0, 'battery-discharge': batteryDischarge > 0 }"
 					  :marker-end="batteryCharge > 0 ? 'url(#arrow-battery-charge)' : (batteryDischarge > 0 ? 'url(#arrow-battery-discharge)' : '')" />
-				<circle v-if="batteryCharge > 0" r="4" class="dot battery-dot">
+				<circle v-if="batteryCharge > 0" r="6" class="dot battery-dot">
 					<animateMotion :path="paths.homeToBattery" dur="2s" repeatCount="indefinite" />
 				</circle>
-				<circle v-if="batteryDischarge > 0" r="4" class="dot battery-dot">
+				<circle v-if="batteryDischarge > 0" r="6" class="dot battery-dot">
 					<animateMotion :path="paths.batteryToHome" dur="2s" repeatCount="indefinite" />
 				</circle>
 			</g>
@@ -120,7 +120,7 @@
 					  class="flow-path"
 					  :class="{ 'vehicle-in': loadpointsPower > 0 }"
 					  :marker-end="loadpointsPower > 0 ? 'url(#arrow-vehicle)' : ''" />
-				<circle v-if="loadpointsPower > 0" r="4" class="dot vehicle-dot">
+				<circle v-if="loadpointsPower > 0" r="6" class="dot vehicle-dot">
 					<animateMotion :path="paths.homeToVehicle" dur="2s" repeatCount="indefinite" />
 				</circle>
 			</g>
@@ -143,19 +143,12 @@ export default defineComponent({
 	components: { BatteryIcon, VehicleIcon },
 	mixins: [formatter],
 	props: {
-		gridImport: { type: Number, default: 0 },
 		gridPower: { type: Number, default: 0 },
-		pvProduction: { type: Number, default: 0 },
 		homePower: { type: Number, default: 0 },
+		pvPower: { type: Number, default: 0 },
 		batteryConfigured: { type: Boolean, default: false },
 		battery: { type: Object as PropType<Battery> },
-		batteryPower: { type: Number, default: 0 },
-		batterySoc: { type: Number, default: 0 },
-		batteryDischarge: { type: Number, default: 0 },
-		batteryCharge: { type: Number, default: 0 },
 		loadpoints: { type: Array as PropType<UiLoadpoint[]>, default: () => [] },
-		loadpointsPower: { type: Number, default: 0 },
-		powerUnit: { type: String as PropType<POWER_UNIT>, default: POWER_UNIT.W },
 	},
 	data() {
 		return {
@@ -171,8 +164,35 @@ export default defineComponent({
 		};
 	},
 	computed: {
+		powerUnit() {
+			const watt = Math.max(this.gridImport, this.pvProduction, this.batteryDischarge, this.gridExport);
+			if (watt >= 1_000_000) return POWER_UNIT.MW;
+			if (watt >= 1000) return POWER_UNIT.KW;
+			return POWER_UNIT.W;
+		},
+		gridImport() {
+			return Math.max(0, this.gridPower);
+		},
 		gridExport() {
 			return Math.max(0, this.gridPower * -1);
+		},
+		pvProduction() {
+			return Math.abs(this.pvPower);
+		},
+		batteryPower() {
+			return this.battery?.power ?? 0;
+		},
+		batterySoc() {
+			return this.battery?.soc ?? 0;
+		},
+		batteryCharge() {
+			return this.batteryPower < 0 ? Math.abs(this.batteryPower) : 0;
+		},
+		batteryDischarge() {
+			return this.batteryPower > 0 ? this.batteryPower : 0;
+		},
+		loadpointsPower() {
+			return this.loadpoints.reduce((sum, lp) => sum + (lp.chargePower || 0), 0);
 		},
 		activeLoadpointsCount() {
 			return this.loadpoints.filter((lp) => lp.charging).length;
@@ -392,18 +412,18 @@ export default defineComponent({
 .flow-path {
 	fill: none;
 	stroke: var(--evcc-gray);
-	stroke-width: 3;
-	stroke-dasharray: 6 6;
-	opacity: 0.3;
+	stroke-width: 4;
+	stroke-dasharray: 8 8;
+	opacity: 0.4;
 	transition: all 0.3s ease;
 }
 
-.flow-path.grid-in { stroke: var(--evcc-grid); opacity: 0.8; stroke-dasharray: none; }
-.flow-path.grid-out { stroke: var(--evcc-export); opacity: 0.8; stroke-dasharray: none; }
-.flow-path.pv-in { stroke: var(--evcc-pv); opacity: 0.8; stroke-dasharray: none; }
-.flow-path.battery-charge { stroke: var(--evcc-battery); opacity: 0.8; stroke-dasharray: none; }
-.flow-path.battery-discharge { stroke: var(--evcc-battery); opacity: 0.8; stroke-dasharray: none; }
-.flow-path.vehicle-in { stroke: var(--evcc-export); opacity: 0.8; stroke-dasharray: none; }
+.flow-path.grid-in { stroke: var(--evcc-grid); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
+.flow-path.grid-out { stroke: var(--evcc-export); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
+.flow-path.pv-in { stroke: var(--evcc-pv); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
+.flow-path.battery-charge { stroke: var(--evcc-battery); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
+.flow-path.battery-discharge { stroke: var(--evcc-battery); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
+.flow-path.vehicle-in { stroke: var(--evcc-export); opacity: 0.9; stroke-dasharray: none; stroke-width: 5; }
 
 .dot {
 	fill: var(--evcc-gray);
