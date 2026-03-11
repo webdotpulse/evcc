@@ -13,7 +13,14 @@
 				<TopNavigationArea :notifications="notifications" />
 			</div>
 			<HemsWarning :circuits="circuits" />
-			<Energyflow v-if="!setupRequired && !hasFatalError" v-bind="energyflow" />
+			<div v-if="!setupRequired && !hasFatalError" class="d-flex justify-content-end mb-2">
+				<button class="btn btn-sm btn-link text-decoration-none" @click="toggleVisualMode">
+					<span v-if="visualMode">Show Details</span>
+					<span v-else>Show Visual Flow</span>
+				</button>
+			</div>
+			<VisualEnergyflow v-if="!setupRequired && !hasFatalError && visualMode" v-bind="visualEnergyflowProps" />
+			<Energyflow v-else-if="!setupRequired && !hasFatalError && !visualMode" v-bind="energyflow" />
 		</div>
 		<div class="d-flex flex-column justify-content-between content-area">
 			<div
@@ -79,6 +86,7 @@
 import "@h2d2/shopicons/es/regular/arrowup";
 import TopNavigationArea from "../Top/TopNavigationArea.vue";
 import Energyflow from "../Energyflow/Energyflow.vue";
+import VisualEnergyflow from "../Energyflow/VisualEnergyflow.vue";
 import HemsWarning from "../HemsWarning.vue";
 import Loadpoints from "../Loadpoints/Loadpoints.vue";
 import Footer from "../Footer/Footer.vue";
@@ -102,11 +110,14 @@ import type {
 import store from "@/store";
 import type { Grid } from "./types";
 
+import settings from "@/settings";
+
 export default defineComponent({
 	name: "Site",
 	components: {
 		Loadpoints,
 		Energyflow,
+		VisualEnergyflow,
 		Footer,
 		HemsWarning,
 		TopNavigationArea,
@@ -188,6 +199,9 @@ export default defineComponent({
 		energyflow() {
 			return this.collectProps(Energyflow);
 		},
+		visualEnergyflowProps() {
+			return this.collectProps(VisualEnergyflow);
+		},
 		vehicleList() {
 			const vehicles = this.vehicles || {};
 			return Object.entries(vehicles).map(([name, vehicle]) => ({ name, ...vehicle }));
@@ -225,10 +239,16 @@ export default defineComponent({
 				errorClass ? `${errorClass}: ${error}` : error
 			);
 		},
+		visualMode() {
+			return settings.energyflowVisual;
+		},
 	},
 	methods: {
 		selectedLoadpointChanged(id: string | undefined) {
 			this.$router.push({ query: { lp: id } });
+		},
+		toggleVisualMode() {
+			settings.energyflowVisual = !settings.energyflowVisual;
 		},
 	},
 });
