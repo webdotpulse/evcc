@@ -12,6 +12,7 @@ const SETTINGS_ENERGYFLOW_PV = "settings_energyflow_pv";
 const SETTINGS_ENERGYFLOW_BATTERY = "settings_energyflow_battery";
 const SETTINGS_ENERGYFLOW_LOADPOINTS = "settings_energyflow_loadpoints";
 const SETTINGS_ENERGYFLOW_CONSUMERS = "settings_energyflow_consumers";
+const SETTINGS_ENERGYFLOW_VISUAL = "settings_energyflow_visual";
 const LOADPOINTS = "loadpoints";
 const SESSION_COLUMNS = "session_columns";
 const SAVINGS_PERIOD = "savings_period";
@@ -113,6 +114,7 @@ export interface Settings {
   energyflowBattery: boolean;
   energyflowLoadpoints: boolean;
   energyflowConsumers: boolean;
+  energyflowVisual: boolean;
   sessionColumns: string[];
   savingsPeriod: string;
   savingsRegion: string;
@@ -137,6 +139,7 @@ const settings: Settings = reactive({
   energyflowBattery: readBool(SETTINGS_ENERGYFLOW_BATTERY),
   energyflowLoadpoints: readBool(SETTINGS_ENERGYFLOW_LOADPOINTS),
   energyflowConsumers: readBool(SETTINGS_ENERGYFLOW_CONSUMERS),
+  energyflowVisual: readBool(SETTINGS_ENERGYFLOW_VISUAL),
   sessionColumns: readArray(SESSION_COLUMNS),
   savingsPeriod: read(SAVINGS_PERIOD),
   savingsRegion: read(SAVINGS_REGION),
@@ -160,6 +163,7 @@ watch(() => settings.energyflowPv, saveBool(SETTINGS_ENERGYFLOW_PV));
 watch(() => settings.energyflowBattery, saveBool(SETTINGS_ENERGYFLOW_BATTERY));
 watch(() => settings.energyflowLoadpoints, saveBool(SETTINGS_ENERGYFLOW_LOADPOINTS));
 watch(() => settings.energyflowConsumers, saveBool(SETTINGS_ENERGYFLOW_CONSUMERS));
+watch(() => settings.energyflowVisual, saveBool(SETTINGS_ENERGYFLOW_VISUAL));
 watch(() => settings.sessionColumns as string[], saveArray(SESSION_COLUMNS));
 watch(() => settings.savingsPeriod, save(SAVINGS_PERIOD));
 watch(() => settings.savingsRegion, save(SAVINGS_REGION));
