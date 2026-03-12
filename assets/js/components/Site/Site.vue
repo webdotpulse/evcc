@@ -19,8 +19,14 @@
 					<span v-else>Show Visual Flow</span>
 				</button>
 			</div>
-			<VisualEnergyflow v-if="!setupRequired && !hasFatalError && visualMode" v-bind="visualEnergyflowProps" />
-			<Energyflow v-else-if="!setupRequired && !hasFatalError && !visualMode" v-bind="energyflow" />
+			<VisualEnergyflow
+				v-if="!setupRequired && !hasFatalError && visualMode"
+				v-bind="visualEnergyflowProps"
+			/>
+			<Energyflow
+				v-else-if="!setupRequired && !hasFatalError && !visualMode"
+				v-bind="energyflow"
+			/>
 		</div>
 		<div class="d-flex flex-column justify-content-between content-area">
 			<div

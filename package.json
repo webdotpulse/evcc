@@ -34,6 +34,7 @@
     "countup.js": "^2.9.0",
     "dayjs": "^1.11.19",
     "monaco-editor": "0.52.2",
+    "playwright": "^1.58.2",
     "smoothscroll-polyfill": "^0.4.4",
     "snarkdown": "^2.0.0",
     "vue": "^3.2.29",
